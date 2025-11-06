@@ -8,7 +8,11 @@ find_package(Vulkan REQUIRED)
 
 add_subdirectory(dependencies/glfw)
 
-add_executable(${PROJECT_NAME} src/main.cpp)
+add_subdirectory(dependencies/glm)
+
+add_executable(${PROJECT_NAME} 
+    src/main.cpp
+)
 
 target_include_directories(${PROJECT_NAME} 
     PRIVATE
@@ -16,6 +20,7 @@ target_include_directories(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME} 
+    glm::glm
     glfw
     Vulkan::Vulkan
 )
