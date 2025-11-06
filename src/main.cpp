@@ -12,6 +12,7 @@
 #include <limits>
 #include <algorithm> 
 #include <fstream>
+#include <filesystem>
 
 #include "logging/logger.h"
 
@@ -84,7 +85,9 @@ static std::vector<char> readFile(const std::string& filename) {
 
 class HelloTriangleApplication {
 public:
-    void run() {
+    void run(const char* argv0) {
+        exeDir = std::filesystem::absolute(argv0).parent_path();
+
         LOG_INFO("Starting Vulkan application...");
         initWindow();
         initVulkan();
@@ -94,6 +97,7 @@ public:
     }
 
 private:
+    std::filesystem::path exeDir;
     GLFWwindow* window = nullptr;
     VkInstance instance = VK_NULL_HANDLE;
     VkDebugUtilsMessengerEXT debugMessenger = VK_NULL_HANDLE;
@@ -626,8 +630,11 @@ private:
     }
 
     void createGraphicsPipeline() {
-        auto vertShaderCode = readFile("../shaders/vert.spv");
-        auto fragShaderCode = readFile("../shaders/frag.spv");
+        std::string vertPath = (exeDir / "../shaders/vert.spv").string();
+        std::string fragPath = (exeDir / "../shaders/frag.spv").string();
+
+        auto vertShaderCode = readFile(vertPath);
+        auto fragShaderCode = readFile(fragPath);
 
         VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
         VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
@@ -1079,11 +1086,11 @@ private:
     }
 };
 
-int main() {
+int main(int argc, char** argv) {
     HelloTriangleApplication app;
 
     try {
-        app.run();
+        app.run(argv[0]);
     } catch (const std::exception& e) {
         LOG_ERROR("Application terminated with exception: %s", e.what());
         return EXIT_FAILURE;
